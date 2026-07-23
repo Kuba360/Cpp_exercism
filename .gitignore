@@ -1,6 +1,13 @@
 *.o
+*.obj
 *.out
+*.pdb
+*.ilk
 *.exe
 build/
 .vscode/
 .DS_Store
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
