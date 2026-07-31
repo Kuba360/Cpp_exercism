@@ -4,49 +4,82 @@
 #include <algorithm>
 #include <set>
 #include <array>
+#include <map>
 
 
 namespace alphametics {
 
-    long long word_value(const std::string& word,const std::map<char,int>& assignment){
-        long long value=0;
-        for(char c: word){
-            value=value*10+assignment.at(c);
-        }
-        return value;
-    }
-    
-    bool checke(const std::vector<std::string>&input,const std::string& output, 
-        const std::map<char,int>& assignment){
-            long long sum=0;
-            for(const auto& word:input){
-                sum+=word_value(word,assignment);
-            }
-            return sum==word_value(output,assignment);
-        }
+bool solve_column(size_t col, int carry, std::map<char,int>& assignment, std::array<bool,10>& used,
+    std::set<char>& letters_not_zero, std::vector<std::string>& input, const std::string& output,
+    size_t maxlen);
 
-    bool backtrack(size_t index,std::map<char,int>& assignment,std::array<bool,10>& used,
-        std::set<char>& letters_not_zero,std::vector<char>& letters,
-        const std::vector<std::string>& input,const std::string& output){
-        
-        if(index==letters.size()){
-            return checke(input,output,assignment);
-        } 
-        
-        char current_l=letters[index];
-        for(size_t i=0;i<10;i++){
-            if(used[i]) continue;
-            if(i==0&&letters_not_zero.find(current_l)!=letters_not_zero.end()) continue;
-            assignment[current_l]=i;
-            used[i]=true;
-            if(backtrack(index+1,assignment,used,letters_not_zero,letters,input,output)){
-                return true;
+bool assign_free_letters(std::vector<char>& new_letters, size_t idx,
+                        const std::vector<char>& col_letters, char out_letter,
+                        size_t col, int carry,
+                        std::map<char,int>& assignment, std::array<bool,10>& used,
+                        std::set<char>& letters_not_zero,
+                        size_t maxlen,
+                        bool solveColumnNext(size_t, int, std::map<char,int>&, std::array<bool,10>&,
+                                               std::set<char>&,   std::vector<std::string>&,
+                                               const std::string&, size_t),
+                        std::vector<std::string>& input, const std::string& output) {
+                         
+                        if (idx == new_letters.size()) {
+                            int sum = carry;
+                            for (char c : col_letters) sum += assignment[c];
+
+                            int digit = sum % 10;
+                            int new_carry = sum / 10;
+
+                            if (assignment[out_letter] != digit) return false;
+
+                            return solveColumnNext(col + 1, new_carry, assignment, used, letters_not_zero, input, output, maxlen);
+                        }
+                            char c = new_letters[idx];
+                        for (int d = 0; d < 10; d++) {
+                            if (used[d]) continue;
+                            if (d == 0 && letters_not_zero.count(c)) continue;
+
+                            assignment[c] = d;
+                            used[d] = true;
+
+                            if (assign_free_letters(new_letters, idx + 1, col_letters, out_letter, col, carry,
+                                                    assignment, used, letters_not_zero, maxlen, solveColumnNext, input, output))
+                                return true;
+
+                            assignment[c] = -1;
+                            used[d] = false;
+                        }
+                        return false;
+                    }
+                    
+
+    bool solve_column(size_t col, int carry,std::map<char,int>& assignment,std::array<bool,10>& used,
+        std::set<char>& letters_not_zero,std::vector<std::string>& input,const std::string& output,
+        size_t maxlen){
+            if(col==maxlen) return carry==0;
+            
+            std::vector<char> col_letters;
+            std::vector<char> new_letters;
+            for(const auto& word:input){
+                if(col>=word.size()) continue;
+                char c=word[word.size()-1-col];
+                col_letters.push_back(c);
+                if(assignment.at(c)==-1 &&
+                    std::find(new_letters.begin(),new_letters.end(),c)==new_letters.end()){
+                        new_letters.push_back(c);
+                    }
             }
-            assignment[current_l]=-1;
-            used[i]=false;
+            char out_letter=output[output.size()-1-col];
+
+            if (assignment.at(out_letter) == -1 &&
+                std::find(new_letters.begin(), new_letters.end(), out_letter) == new_letters.end()) {
+                new_letters.push_back(out_letter);
+            }
+            return assign_free_letters(new_letters,0,col_letters,out_letter,
+                col,carry,assignment,used,letters_not_zero,maxlen,
+                solve_column,input,output);
         }
-        return false;
-    }
 
 std::optional<std::map<char,int>> solve(std::string s){
     s.erase(std::remove(s.begin(),s.end(),' '),s.end());
@@ -82,14 +115,13 @@ std::optional<std::map<char,int>> solve(std::string s){
     for (auto& c:letters) assignment[c]=-1;
 
     std::array<bool,10> used{false};
-    if(backtrack(0,assignment,used,letters_not_zero,letters,input,output)){
+    if(solve_column(0,0,assignment,used,letters_not_zero,input,output,output.size())){
         return assignment;
     }
     
     return std::nullopt;
-
+}
 
 }
 // TODO: add your solution here
 
-}  // namespace alphametics
