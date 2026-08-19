@@ -11,3 +11,10 @@ CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
 Makefile
+config.json
+HELP.md
+metadata.json
+CMakeLists.txt
+catch.hpp
+tests-main.cpp
+HINTS.md
