@@ -23,7 +23,7 @@ namespace food_chain {
                 ns+="How absurd to swallow a bird!\n";
                 break;
             case 2:
-                ns+="It wriggled and jiggled and tickled insider her.\n";
+                ns+="It wriggled and jiggled and tickled inside her.\n";
                 break;
             default: 
                 ns+=" ";
@@ -36,7 +36,7 @@ namespace food_chain {
         bool one=true;
         int y=x;
         if(x==8){
-            return "I know an old lady who swallowed a horse.\nShe's dead, of course!.\n";
+            return "I know an old lady who swallowed a horse.\nShe's dead, of course!\n";
         }
 
         while(y>0){
@@ -49,7 +49,7 @@ namespace food_chain {
             if(y==3){
                 ns+="She swallowed the bird to catch the spider that wriggled and jiggled and tickled inside her.\n";
             }else if(y>1 && y<8){
-                ns+="She swallowed the "+a[y-1]+"to catch the " +a[y-2]+ ".\n";
+                ns+="She swallowed the "+a[y-1]+" to catch the " +a[y-2]+ ".\n";
             }
 
             if(y==1) ns+="I don't know why she swallowed the fly. Perhaps she'll die.\n";
