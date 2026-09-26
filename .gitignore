@@ -18,3 +18,15 @@ CMakeLists.txt
 catch.hpp
 tests-main.cpp
 HINTS.md
+
+x64/
+Debug/
+Release/
+.vs/
+
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.tlog
+*.recipe
+*.dir/
